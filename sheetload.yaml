@@ -1,0 +1,147 @@
+swagger: "2.0"
+info:
+  description: "This is a Google Sheets to JSON API and part of the API Maker product suite by Datascout International "
+  version: "1.0.0"
+  title: "SheetLoad"
+  termsOfService: "http://datascout.com.au/terms/"
+  contact:
+    email: "api-support@datascout.com.au"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "sheetload.datascout.com.au"
+basePath: "/v1"
+tags:
+- name: "SheetLoad"
+  description: "Google Sheets to JSON API"
+  externalDocs:
+    description: "Find out more"
+    url: "https://datascout.com.au/products/api-maker-sheetload/"
+schemes:
+- "https"
+paths:
+  /:
+    post:
+      tags:
+      - "SheetLoad"
+      summary: "Get a Google Sheet in JSON format"
+      description: "Using a Google Sheet ID you can output the data from all the tabs in JSON format"
+      operationId: "post"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Configuration of desired output"
+        required: true
+        schema:
+          $ref: "#/definitions/SpreadSheetConfiguration"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        400:
+          description: "Invalid inputs"
+          schema:
+            $ref: "#/definitions/ErrorPostResponse"
+    get:
+      tags:
+      - "SheetLoad"
+      summary: "Get a Google Sheet in JSON format"
+      description: "Using a Google Sheet ID you can output the data from all the tabs in JSON format"
+      operationId: "get"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "preset"
+        in: "query"
+        description: "Preset SheetLoad configuration"
+        required: true
+        type: "string"
+        enum:
+        - "2019-ncov"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        404:
+          description: "Invalid inputs"
+          schema:
+            $ref: "#/definitions/ErrorGetResponse"
+definitions:
+  SpreadSheetConfiguration:
+    type: "object"
+    required:
+    - "spreadsheetID"
+    properties:
+      spreadsheetID:
+        type: "string"
+        example: "1UF2pSkFTURko2OvfHWWlFpDFAr1UxCBA4JLwlSP6KFo"
+      showIDInResponse:
+        type: "boolean"
+        default: true
+      tabs:
+        $ref: "#/definitions/TabsConfiguration"
+  TabsConfiguration:
+    type: "object"
+    properties:
+      defaults:
+        type: "object"
+        properties:
+          emptyStringAsUndefined:
+            type: "boolean"
+            default: false
+  ApiResponse:
+    type: "object"
+    properties:
+      spreadsheetID:
+        type: "string"
+        example: "1UF2pSkFTURko2OvfHWWlFpDFAr1UxCBA4JLwlSP6KFo"
+      title:
+        type: "string"
+        example: "Novel Coronavirus (2019-nCoV) Cases, provided by JHU CSSE"
+      tabs:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            name:
+              type: "string"
+              example: "Feb01_10am"
+            range:
+              type: "string"
+              example: "A1:ZZ1000"
+            data:
+              type: "array"
+              items:
+                type: "object"
+                additionalProperties:
+                  type: string
+                  example: valueA2
+                example:
+                  headerA1: valueA2
+                  headerB1: valueB2
+              example:
+                - headerA1: valueA2
+                  headerB1: valueB2
+                - headerA1: valueA3
+                  headerB1: valueB3
+  ErrorPostResponse:
+    type: object
+    properties:
+      error:
+        type: string
+        example: Please include a spreadsheetID
+  ErrorGetResponse:
+    type: object
+    properties:
+      error:
+        type: string
+        example:  Preset '${req.query.preset}' not found!
+externalDocs:
+  description: "Find out more about SheetLoad"
+  url: "https://datascout.com.au/products/api-maker-sheetload/"
